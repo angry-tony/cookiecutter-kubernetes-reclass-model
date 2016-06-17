@@ -41,6 +41,7 @@ parameters:
           classes:
           - system.linux.system.single
           - system.kubernetes.pool.calico.single
+          - system.opencontrail.compute.cluster
           params:
             salt_master_host: ${_param:reclass_config_master}
             single_address: {{ cookiecutter.cmp04_ip }}
@@ -50,6 +51,7 @@ parameters:
           classes:
           - system.linux.system.single
           - system.kubernetes.pool.calico.single
+          - system.opencontrail.compute.cluster
           params:
             salt_master_host: ${_param:reclass_config_master}
             single_address: {{ cookiecutter.cmp05_ip }}

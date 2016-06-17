@@ -7,6 +7,7 @@ classes:
 - system.salt.master.formula.kubernetes
 - system.salt.master.formula.saltstack
 - system.salt.master.formula.glusterfs
+- system.salt.master.formula.opencontrail
 - system.reclass.storage.salt
 - system.reclass.storage.system.master
 - system.reclass.storage.system.pool

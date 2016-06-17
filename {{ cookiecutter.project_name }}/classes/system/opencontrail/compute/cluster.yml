@@ -1,0 +1,28 @@
+applications:
+- opencontrail
+parameters:
+  opencontrail:
+    common:
+      version: ${_param:opencontrail_version}
+      identity:
+        engine: keystone
+        host: keystone.server
+        port: 35357
+        token: password
+        password: password
+      network:
+        engine: neutron
+        host: neutron.server
+        port: 9696
+    compute:
+      version: ${_param:opencontrail_version}
+      enabled: True
+      discovery:
+        host: contrail.discovery
+      interface:
+        address: ${_param:single_address}
+        dev: {{ cookiecutter.cmp_data_interface }}
+        gateway: {{ cookiecutter.network_gateway }}
+        mask: {{ cookiecutter.network_mask }}
+        dns: 8.8.8.8
+        mtu: 9000

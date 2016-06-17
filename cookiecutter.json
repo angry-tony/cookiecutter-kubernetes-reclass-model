@@ -17,6 +17,9 @@
     "cmp03_ip": "",
     "cmp04_ip": "",
     "cmp05_ip": "",
+    "cmp_data_interface": "eth0",
+    "network_gateway": "",
+    "network_mask": "24",
     "service_ip_range": "10.150.0.0/16",
     "openstack_version": "kilo"
 }
