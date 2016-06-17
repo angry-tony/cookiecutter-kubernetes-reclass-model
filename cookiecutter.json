@@ -1,0 +1,22 @@
+{
+    "project_name": "project-reclass-salt-model",
+    "domain_name": "cloud.company.com",
+    "apt_repository": "http://apt.tcpcloud.eu",
+    "apt_branch": "nightly",
+    "cfg01_name": "cfg01",
+    "ctl01_name": "ctl01",
+    "cmp01_name": "nod01",
+    "cmp02_name": "nod02",
+    "cmp03_name": "nod03",
+    "cmp04_name": "nod04",
+    "cmp05_name": "nod05",
+    "cfg01_ip": "",
+    "ctl01_ip": "",
+    "cmp01_ip": "",
+    "cmp02_ip": "",
+    "cmp03_ip": "",
+    "cmp04_ip": "",
+    "cmp05_ip": "",
+    "service_ip_range": "10.150.0.0/16",
+    "openstack_version": "kilo"
+}

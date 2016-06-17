@@ -1,0 +1,48 @@
+classes:
+- service.git.client
+- system.linux.system.single
+- system.openssh.client.workshop
+- system.salt.master.single
+- system.salt.master.formula.linux
+- system.salt.master.formula.kubernetes
+- system.salt.master.formula.saltstack
+- system.salt.master.formula.glusterfs
+- system.reclass.storage.salt
+- system.reclass.storage.system.master
+- system.reclass.storage.system.pool
+parameters:
+  _param:
+    reclass_config_master: {{ cookiecutter.cfg01_ip }}
+    single_address: {{ cookiecutter.cfg01_ip }}
+    salt_master_host: 127.0.0.1
+    salt_master_base_environment: prd
+  linux:
+    system:
+      name: {{ cookiecutter.cfg01_name }}
+      domain: {{ cookiecutter.domain_name }}
+      repo:
+        tcpcloud_salt:
+          source: "deb [arch=amd64] http://apt.tcpcloud.eu/nightly/ trusty tcp-salt"
+          architectures: amd64
+          key_url: "http://apt.tcpcloud.eu/public.gpg"
+  salt:
+    master:
+      accept_policy: open_mode
+    minion:
+      enabled: true
+      ca:
+        kubernetes:
+          common_name: kubernetes
+          country: country
+          state: state
+          locality: locality
+          days_valid:
+            authority: 3650
+            certificate: 90
+          signing_policy:
+            cert_server:
+              type: v3_edge_cert_server
+              minions: '*'
+            cert_client:
+              type: v3_edge_cert_client
+              minions: '*'

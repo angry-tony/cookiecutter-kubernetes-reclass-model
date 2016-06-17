@@ -1,0 +1,55 @@
+classes:
+- system.docker.server.single
+- service.kubernetes.pool.single
+parameters:
+  _param:
+    master_address: {{ cookiecutter.ctl01_ip }}
+    glusterfs_service_host: {{ cookiecutter.cmp01_ip }}
+    cluster_node01_address: {{ cookiecutter.cmp01_ip }}
+    cluster_node02_address: {{ cookiecutter.cmp02_ip }}
+    cluster_node03_address: {{ cookiecutter.cmp03_ip }}
+  kubernetes:
+    common:
+      binaries_version: v1.2.4
+    pool:
+      version: v1.2.4
+      network:
+        engine: calico
+        version: v0.19.0
+        hash: fb5e30ebe6154911a66ec3fb5f1195b2
+  salt:
+    minion:
+      cert:
+        kube_apiserver:
+          host: {{ cookiecutter.cfg01_name }}.{{ cookiecutter.domain_name }}
+          authority: kubernetes
+          common_name: kubelet-client
+          signing_policy: cert_client
+          alternative_names: IP:{{ cookiecutter.ctl01_ip }},IP:10.254.0.1
+    storage:
+      multipath: false
+  docker:
+    host:
+      container:
+        calico-node:
+          image: "calico/node:v0.19.0"
+          runoptions:
+            - -d
+            - --restart=always
+            - --privileged
+            - -e "ETCD_AUTHORITY=${_param:master_address}:6666"
+            - -e "KUBERNETES_MASTER=${_param:master_address}"
+            - -e "CALICO_NETWORKING=true"
+            - -e "ETCD_SCHEME=http"
+            - -e "FELIX_ETCDADDR=${_param:master_address}:6666"
+            - -e "FELIX_ETCDSCHEME=http"
+            - -e "IP=${_param:single_address}"
+            - -e "IPV6="
+            - -e "AS="
+            - -e "NO_DEFAULT_POOLS="
+            - --net=host
+            - --name=calico-node
+            - -e "HOSTNAME=${linux:system:name}"
+            - -v /lib/modules:/lib/modules
+            - -v /var/run/calico:/var/run/calico
+          cmd: /sbin/start_runit

@@ -1,0 +1,15 @@
+parameters:
+  salt:
+    master:
+      environment:
+        prd:
+          formula:
+            kubernetes:
+              source: pkg
+              name: salt-formula-kubernetes
+            docker:
+              source: pkg
+              name: salt-formula-docker
+            nginx:
+              source: pkg
+              name: salt-formula-nginx

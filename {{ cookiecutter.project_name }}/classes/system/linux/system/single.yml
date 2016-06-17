@@ -1,0 +1,51 @@
+classes:
+- service.linux.system
+- service.ntp.client
+- service.salt.minion.master
+- system.openssh.server.single
+parameters:
+  linux:
+    system:
+      repo:
+        tcpcloud:
+          source: "deb [arch=amd64] {{ cookiecutter.apt_repository }}/{{ cookiecutter.apt_branch }}/ trusty main security extra tcp tcp-salt"
+          architectures: amd64
+          default: true
+          key_url: "{{ cookiecutter.apt_repository }}/public.gpg"
+    network:
+      host:
+        {{ cookiecutter.cfg01_name }}:
+          address: {{ cookiecutter.cfg01_ip }}
+          names:
+          - {{ cookiecutter.cfg01_name }}.{{ cookiecutter.domain_name }}
+          - {{ cookiecutter.cfg01_name }}
+        {{ cookiecutter.ctl01_name }}:
+          address: {{ cookiecutter.ctl01_ip }}
+          names:
+          - {{ cookiecutter.ctl01_name }}.{{ cookiecutter.domain_name }}
+          - {{ cookiecutter.ctl01_name }}
+        {{ cookiecutter.cmp01_name }}:
+          address: {{ cookiecutter.cmp01_ip }}
+          names:
+          - {{ cookiecutter.cmp01_name }}.{{ cookiecutter.domain_name }}
+          - {{ cookiecutter.cmp01_name }}
+        {{ cookiecutter.cmp02_name }}:
+          address: {{ cookiecutter.cmp02_ip }}
+          names:
+          - {{ cookiecutter.cmp02_name }}.{{ cookiecutter.domain_name }}
+          - {{ cookiecutter.cmp02_name }}
+        {{ cookiecutter.cmp03_name }}:
+          address: {{ cookiecutter.cmp03_ip }}
+          names:
+          - {{ cookiecutter.cmp03_name }}.{{ cookiecutter.domain_name }}
+          - {{ cookiecutter.cmp03_name }}
+        {{ cookiecutter.cmp04_name }}:
+          address: {{ cookiecutter.cmp04_ip }}
+          names:
+          - {{ cookiecutter.cmp04_name }}.{{ cookiecutter.domain_name }}
+          - {{ cookiecutter.cmp04_name }}
+        {{ cookiecutter.cmp05_name }}:
+          address: {{ cookiecutter.cmp05_ip }}
+          names:
+          - {{ cookiecutter.cmp05_name }}.{{ cookiecutter.domain_name }}
+          - {{ cookiecutter.cmp05_name }}

@@ -1,0 +1,55 @@
+parameters:
+  reclass:
+    storage:
+      node:
+        {{ cookiecutter.cmp01_name }}.{{ cookiecutter.domain_name }}:
+          name: {{ cookiecutter.cmp01_name }}
+          domain: {{ cookiecutter.domain_name }}
+          classes:
+          - system.linux.system.single
+          - system.glusterfs.storage.keystone
+          - system.glusterfs.storage.glance
+          - system.kubernetes.pool.calico.single
+          params:
+            salt_master_host: ${_param:reclass_config_master}
+            single_address: {{ cookiecutter.cmp01_ip }}
+        {{ cookiecutter.cmp02_name }}.{{ cookiecutter.domain_name }}:
+          name: {{ cookiecutter.cmp02_name }}
+          domain: {{ cookiecutter.domain_name }}
+          classes:
+          - system.linux.system.single
+          - system.glusterfs.storage.keystone
+          - system.glusterfs.storage.glance
+          - system.kubernetes.pool.calico.single
+          params:
+            salt_master_host: ${_param:reclass_config_master}
+            single_address: {{ cookiecutter.cmp02_ip }}
+        {{ cookiecutter.cmp03_name }}.{{ cookiecutter.domain_name }}:
+          name: {{ cookiecutter.cmp03_name }}
+          domain: {{ cookiecutter.domain_name }}
+          classes:
+          - system.linux.system.single
+          - system.glusterfs.storage.keystone
+          - system.glusterfs.storage.glance
+          - system.kubernetes.pool.calico.single
+          params:
+            salt_master_host: ${_param:reclass_config_master}
+            single_address: {{ cookiecutter.cmp03_ip }}
+        {{ cookiecutter.cmp04_name }}.{{ cookiecutter.domain_name }}:
+          name: {{ cookiecutter.cmp04_name }}
+          domain: {{ cookiecutter.domain_name }}
+          classes:
+          - system.linux.system.single
+          - system.kubernetes.pool.calico.single
+          params:
+            salt_master_host: ${_param:reclass_config_master}
+            single_address: {{ cookiecutter.cmp04_ip }}
+        {{ cookiecutter.cmp05_name }}.{{ cookiecutter.domain_name }}:
+          name: {{ cookiecutter.cmp05_name }}
+          domain: {{ cookiecutter.domain_name }}
+          classes:
+          - system.linux.system.single
+          - system.kubernetes.pool.calico.single
+          params:
+            salt_master_host: ${_param:reclass_config_master}
+            single_address: {{ cookiecutter.cmp05_ip }}

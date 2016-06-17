@@ -1,0 +1,16 @@
+classes:
+- service.reclass.storage.salt
+- service.git.client
+parameters:
+  reclass:
+    storage:
+      enabled: true
+      base_dir: /srv/reclass
+      data_source:
+        engine: local
+  salt:
+    master:
+      pillar:
+        engine: reclass
+        data_dir: /srv/salt/reclass
+

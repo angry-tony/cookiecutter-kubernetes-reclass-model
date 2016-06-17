@@ -1,0 +1,13 @@
+parameters:
+  reclass:
+    storage:
+      node:
+        {{ cookiecutter.ctl01_name }}.{{ cookiecutter.domain_name }}:
+          name: {{ cookiecutter.ctl01_name }}
+          domain: {{ cookiecutter.domain_name }}
+          classes:
+          - system.linux.system.single
+          - system.kubernetes.control.single
+          params:
+            salt_master_host: ${_param:reclass_config_master}
+            single_address: {{ cookiecutter.ctl01_ip }}
