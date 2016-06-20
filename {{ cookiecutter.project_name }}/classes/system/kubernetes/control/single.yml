@@ -1,0 +1,581 @@
+classes:
+- service.kubernetes.control.cluster
+parameters:
+  kubernetes:
+    control:
+      service:
+        memcached01:
+          enabled: true
+          cluster: support
+          service: memcached
+          namespace: default
+          ports:
+          - port: 11211
+            name: memcached
+          role: server-node01
+          type: LoadBalancer
+          kind: Deployment
+          apiVersion: extensions/v1beta1
+          replicas: 1
+          nodeSelector:
+          - key: openstack
+            value: control
+          container:
+            memcached:
+              image: tcpcloud/memcached-server
+              ports:
+              - port: 11211
+                name: memcached
+        memcached02:
+          enabled: true
+          service: memcached
+          cluster: support
+          namespace: default
+          ports:
+          - port: 11211
+            name: memcached
+          role: server-node02
+          type: LoadBalancer
+          kind: Deployment
+          apiVersion: extensions/v1beta1
+          replicas: 1
+          nodeSelector:
+          - key: openstack
+            value: control
+          container:
+            memcached:
+              image: tcpcloud/memcached-server
+              ports:
+              - port: 11211
+                name: memcached
+        memcached03:
+          enabled: true
+          service: memcached
+          cluster: support
+          namespace: default
+          ports:
+          - port: 11211
+            name: memcached
+          role: server-node03
+          type: LoadBalancer
+          kind: Deployment
+          apiVersion: extensions/v1beta1
+          replicas: 1
+          nodeSelector:
+          - key: openstack
+            value: control
+          container:
+            memcached:
+              image: tcpcloud/memcached-server
+              ports:
+              - port: 11211
+                name: memcached
+        rabbitmq01:
+          enabled: true
+          service: rabbitmq
+          cluster: support
+          namespace: default
+          ports:
+          - port: 5672
+            name: rabbitmq
+          - port: 4369
+            name: epmd
+          role: server-node01
+          type: LoadBalancer
+          kind: Deployment
+          apiVersion: extensions/v1beta1
+          replicas: 1
+          nodeSelector:
+          - key: openstack
+            value: control
+          container:
+            rabbitmq:
+              image: tcpcloud/rabbitmq-server
+              ports:
+              - port: 5672
+                name: rabbitmq
+              - port: 4369
+                name: epmd
+        mysql:
+          enabled: true
+          service: mysql
+          namespace: default
+          cluster: support
+          ports:
+          - port: 3306
+            name: mysql
+          role: server
+          type: LoadBalancer
+          kind: Deployment
+          apiVersion: extensions/v1beta1
+          replicas: 1
+          nodeSelector:
+          - key: openstack
+            value: control
+          container:
+            mysql:
+              image: tcpcloud/mysql-server
+              ports:
+              - port: 3306
+                name: mysql
+        keystone:
+          enabled: true
+          service: keystone
+          namespace: default
+          cluster: openstack
+          replicas: ${_param:openstack_replicas}
+          ports:
+          - port: 5000
+            name: keystone01
+          - port: 35357
+            name: keystone02
+          role: server
+          type: LoadBalancer
+          kind: Deployment
+          apiVersion: extensions/v1beta1
+          nodeSelector:
+          - key: openstack
+            value: control
+          container:
+            keystone:
+              image: tcpcloud/keystone-server
+              tag: ${_param:openstack_version}
+              ports:
+              - port: 5000
+                name: keystone01
+              - port: 35357
+                name: keystone02
+              volumes:
+                - name: keystone
+                  mount: /var/lib/keystone/fernet-keys
+                  read_only: False
+              liveness_probe:
+                type: http
+                path: /
+                port: 5000
+                initial_delay: 600
+                timeout: 10
+              readiness_probe:
+                type: http
+                path: /
+                port: 5000
+                initial_delay: 0
+                timeout: 5
+          volume:
+            keystone:
+              type: glusterfs
+              endpoints: glusterfs-cluster
+              path: keystone-keys
+              read_only: False
+        glance:
+          enabled: true
+          service: glance
+          namespace: default
+          cluster: openstack
+          replicas: ${_param:openstack_replicas}
+          ports:
+          - port: 9292
+            name: glance-api
+          - port: 9191
+            name: glance-registry
+          role: server
+          type: LoadBalancer
+          kind: Deployment
+          apiVersion: extensions/v1beta1
+          nodeSelector:
+          - key: openstack
+            value: control
+          container:
+            glance-api:
+              image: tcpcloud/glance-server
+              tag: ${_param:openstack_version}
+              command:
+              - /entrypoint.sh
+              - api
+              ports:
+              - port: 9292
+                name: glance-api
+              volumes:
+              - name: gluster
+                mount: /var/lib/glance/images
+                read_only: False
+            glance-registry:
+              image: tcpcloud/glance-server
+              tag: ${_param:openstack_version}
+              command:
+              - /entrypoint.sh
+              - registry
+              ports:
+              - port: 9191
+                name: glance-registry
+          volume:
+            gluster:
+              type: glusterfs
+              endpoints: glusterfs-cluster
+              path: glance
+              read_only: False
+        nova:
+          enabled: true
+          service: nova
+          namespace: default
+          cluster: openstack
+          replicas: ${_param:openstack_replicas}
+          ports:
+          - port: 8773
+            name: ec2-api
+          - port: 8774
+            name: os-api
+          - port: 8775
+            name: metadata
+          role: controller
+          type: LoadBalancer
+          kind: Deployment
+          apiVersion: extensions/v1beta1
+          nodeSelector:
+          - key: openstack
+            value: control
+          container:
+            nova-api:
+              image: tcpcloud/nova-controller
+              tag: ${_param:openstack_version}
+              privileged: True
+              command:
+              - /entrypoint.sh
+              - api
+              ports:
+              - port: 8773
+                name: ec2-api
+              - port: 8774
+                name: os-api
+              - port: 8775
+                name: metadata
+            nova-scheduler:
+              image: tcpcloud/nova-controller
+              tag: ${_param:openstack_version}
+              command:
+              - /entrypoint.sh
+              - scheduler
+            nova-conductor:
+              image: tcpcloud/nova-controller
+              tag: ${_param:openstack_version}
+              command:
+              - /entrypoint.sh
+              - conductor
+            nova-consoleauth:
+              image: tcpcloud/nova-controller
+              tag: ${_param:openstack_version}
+              command:
+              - /entrypoint.sh
+              - consoleauth
+            nova-cert:
+              image: tcpcloud/nova-controller
+              tag: ${_param:openstack_version}
+              command:
+              - /entrypoint.sh
+              - cert
+            nova-novncproxy:
+              image: tcpcloud/nova-controller
+              tag: ${_param:openstack_version}
+              command:
+              - /entrypoint.sh
+              - novncproxy
+        neutron:
+          enabled: true
+          service: neutron
+          namespace: default
+          cluster: openstack
+          replicas: ${_param:openstack_replicas}
+          ports:
+          - port: 9696
+            name: neutron-api
+          role: server
+          type: LoadBalancer
+          kind: Deployment
+          apiVersion: extensions/v1beta1
+          nodeSelector:
+          - key: openstack
+            value: control
+          container:
+            neutron-server:
+              image: tcpcloud/neutron-server
+              tag: ${_param:openstack_version}
+              ports:
+              - port: 9696
+                name: neutron-api
+              command:
+              - /entrypoint.sh
+              - server
+        cinder:
+          enabled: true
+          service: cinder
+          namespace: default
+          cluster: openstack
+          replicas: ${_param:openstack_replicas}
+          ports:
+          - port: 8776
+            name: cinder-api
+          role: controller
+          type: LoadBalancer
+          kind: Deployment
+          apiVersion: extensions/v1beta1
+          nodeSelector:
+          - key: openstack
+            value: control
+          container:
+            cinder-api:
+              image: tcpcloud/cinder-controller
+              tag: ${_param:openstack_version}
+              ports:
+              - port: 8776
+                name: cinder-api
+              command:
+              - /entrypoint.sh
+              - api
+            cinder-scheduler:
+              image: tcpcloud/cinder-controller
+              command:
+              - /entrypoint.sh
+              - scheduler
+        contrail-config:
+          enabled: true
+          service: opencontrail
+          namespace: default
+          cluster: opencontrail
+          ports:
+          - port: 8082
+            name: api
+          - port: 5998
+            name: discovery
+          - port: 8443
+            name: ifmap
+          role: config
+          type: LoadBalancer
+          kind: Deployment
+          apiVersion: extensions/v1beta1
+          replicas: 1
+          nodeSelector:
+          - key: openstack
+            value: control
+          container:
+            contrail-config:
+              image: tcpcloud/opencontrail-config
+              ports:
+              - port: 8082
+                name: api
+              - port: 5998
+                name: discovery
+              - port: 8443
+                name: ifmap
+              variables:
+              - name: OPENCONTRAIL_CONFIG_LOCAL_HOST
+                fieldPath: status.podIP
+        contrail-control:
+          enabled: true
+          service: opencontrail
+          namespace: default
+          cluster: opencontrail
+          ports:
+          - port: 8083
+            name: control
+          - port: 53
+            name: named
+          - port: 5269
+            name: xmpp
+          - port: 8092
+            name: dns-introspect
+          - port: 8093
+            name: dns-xmpp
+          role: control
+          type: LoadBalancer
+          kind: Deployment
+          apiVersion: extensions/v1beta1
+          replicas: 1
+          nodeSelector:
+          - key: openstack
+            value: control
+          container:
+            contrail-control:
+              image: tcpcloud/opencontrail-control
+              ports:
+              - port: 8083
+                name: control
+              - port: 53
+                name: named
+              - port: 5269
+                name: xmpp
+              - port: 8092
+                name: dns-introspect
+              - port: 8093
+                name: dns-xmpp
+              variables:
+              - name: OPENCONTRAIL_CONTROL_LOCAL_HOST
+                fieldPath: status.podIP
+        contrail-collector:
+          enabled: true
+          service: opencontrail
+          namespace: default
+          cluster: opencontrail
+          ports:
+          - port: 8081
+            name: analytics-api
+          - port: 8086
+            name: collector
+          role: collector
+          type: LoadBalancer
+          kind: Deployment
+          apiVersion: extensions/v1beta1
+          replicas: 1
+          nodeSelector:
+          - key: openstack
+            value: control
+          container:
+            contrail-control:
+              image: tcpcloud/opencontrail-collector
+              ports:
+              - port: 8081
+                name: analytics-api
+              - port: 8086
+                name: collector
+              variables:
+              - name: OPENCONTRAIL_COLLECTOR_LOCAL_HOST
+                fieldPath: status.podIP
+        libvirt-compute01:
+          enabled: False
+          service: libvirt
+          cluster: openstack-compute
+          namespace: default
+          role: compute01
+          type: LoadBalancer
+          kind: Deployment
+          apiVersion: extensions/v1beta1
+          replicas: 1
+          nodeSelector:
+          - key: compute
+            value: one
+          hostNetwork: True
+          container:
+            libvirt-compute01:
+              privileged: True
+              image: tcpcloud/libvirt-compute
+              volumes:
+              - name: nova-instances
+                mount: /var/lib/nova/instances
+                read_only: False
+              - name: modules
+                mount: /lib/modules
+                read_only: True
+              - name: libvirt
+                mount: /var/lib/libvirt
+                read_only: False
+              - name: cgroups
+                mount: /sys/fs/cgroup
+                read_only: False
+            nova-compute01:
+              privileged: True
+              image: tcpcloud/nova-compute
+              tag: ${_param:openstack_version}
+              volumes:
+              - name: nova-instances
+                mount: /var/lib/nova/instances
+                read_only: False
+              - name: lib
+                mount: /usr/lib/python2.7/dist-packages/vnc_api/
+                read_only: True
+              - name: cfgm
+                mount: /usr/lib/python2.7/dist-packages/cfgm_common/
+                read_only: True
+          volume:
+            nova-instances:
+              type: hostPath
+              path: /var/lib/nova/instances
+              read_only: False
+            lib:
+              type: hostPath
+              path: /usr/lib/python2.7/dist-packages/vnc_api/
+              read_only: True
+            cfgm:
+              type: hostPath
+              path: /usr/lib/python2.7/dist-packages/cfgm_common/
+              read_only: True
+            modules:
+              type: hostPath
+              path: /lib/modules
+              read_only: True
+            libvirt:
+              type: hostPath
+              path: /var/lib/libvirt
+              read_only: False
+            cgroups:
+              type: hostPath
+              path: /sys/fs/cgroup
+              read_only: False
+        libvirt-compute02:
+          enabled: False
+          service: libvirt
+          namespace: default
+          cluster: openstack-compute
+          role: compute02
+          type: LoadBalancer
+          kind: Deployment
+          apiVersion: extensions/v1beta1
+          hostNetwork: True
+          replicas: 1
+          nodeSelector:
+          - key: compute
+            value: two
+          container:
+            libvirt-compute02:
+              privileged: True
+              image: tcpcloud/libvirt-compute
+              volumes:
+              - name: nova-instances
+                mount: /var/lib/nova/instances
+                read_only: False
+              - name: modules
+                mount: /lib/modules
+                read_only: True
+              - name: libvirt
+                mount: /var/lib/libvirt
+                read_only: False
+              - name: cgroups
+                mount: /sys/fs/cgroup
+                read_only: False
+            nova-compute02:
+              privileged: True
+              image: tcpcloud/nova-compute
+              tag: ${_param:openstack_version}
+              volumes:
+              - name: nova-instances
+                mount: /var/lib/nova/instances
+                read_only: False
+              - name: lib
+                mount: /usr/lib/python2.7/dist-packages/vnc_api/
+                read_only: True
+              - name: cfgm
+                mount: /usr/lib/python2.7/dist-packages/cfgm_common/
+                read_only: True
+          volume:
+            nova-instances:
+              type: hostPath
+              path: /var/lib/nova/instances
+              read_only: False
+            lib:
+              type: hostPath
+              path: /usr/lib/python2.7/dist-packages/vnc_api/
+              read_only: True
+            cfgm:
+              type: hostPath
+              path: /usr/lib/python2.7/dist-packages/cfgm_common/
+              read_only: True
+            modules:
+              type: hostPath
+              path: /lib/modules
+              read_only: True
+            libvirt:
+              type: hostPath
+              path: /var/lib/libvirt
+              read_only: False
+            cgroups:
+              type: hostPath
+              path: /sys/fs/cgroup
+              read_only: False

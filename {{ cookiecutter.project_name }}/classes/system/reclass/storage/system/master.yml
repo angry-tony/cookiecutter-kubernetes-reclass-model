@@ -7,7 +7,7 @@ parameters:
           domain: {{ cookiecutter.domain_name }}
           classes:
           - system.linux.system.single
-          - system.kubernetes.control.single
+          - system.kubernetes.master.calico.single
           params:
             salt_master_host: ${_param:reclass_config_master}
             single_address: {{ cookiecutter.ctl01_ip }}

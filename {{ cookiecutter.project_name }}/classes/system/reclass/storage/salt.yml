@@ -4,13 +4,12 @@ classes:
 parameters:
   reclass:
     storage:
-      enabled: true
-      base_dir: /srv/reclass
       data_source:
-        engine: local
+        engine: git
+        address:  '${_param:reclass_data_repository}'
+        branch: ${_param:reclass_data_revision}
   salt:
     master:
       pillar:
         engine: reclass
         data_dir: /srv/salt/reclass
-
