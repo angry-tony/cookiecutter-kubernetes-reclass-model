@@ -1,5 +1,7 @@
 {
     "project_name": "project-reclass-salt-model",
+    "git_url": "github.com",
+    "git_repository": "",
     "domain_name": "cloud.company.com",
     "apt_repository": "http://apt.tcpcloud.eu",
     "apt_branch": "nightly",
