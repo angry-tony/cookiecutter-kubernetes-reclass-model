@@ -3,9 +3,8 @@ classes:
 - service.kubernetes.master.single
 - system.kubernetes.control.single
 parameters:
-  _param:
-    openstack_version: {{ cookiecutter.openstack_version }}
-    openstack_replicas: 1
+    apiserver_address: {{ cookiecutter.ctl01_ip }}
+    nginx_kubernetes_master_host: {{ cookiecutter.ctl01_ip }}
   kubernetes:
     master:
       version: v1.2.4

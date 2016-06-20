@@ -1,6 +1,9 @@
 classes:
 - service.kubernetes.control.cluster
 parameters:
+  _param:
+    openstack_version: {{ cookiecutter.openstack_version }}
+    openstack_replicas: 1
   kubernetes:
     control:
       service:
